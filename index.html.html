@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRS VISION — Time, Uncut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0b;
+    --surface:#131315;
+    --surface-2:#1b1b1e;
+    --line: rgba(245,243,239,0.09);
+    --red:#e8283f;
+    --red-bright:#ff4757;
+    --text:#f5f3ef;
+    --dim:#9a9a9f;
+    --dim-2:#5f5f64;
+    --display: 'Bebas Neue', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;}
+  ::selection{background:var(--red);color:#fff;}
+  :focus-visible{outline:2px solid var(--red-bright);outline-offset:3px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
+
+  /* ---------- Scroll dial (signature element) ---------- */
+  #dial{
+    position:fixed; bottom:24px; right:24px; z-index:200;
+    width:56px; height:56px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  }
+  #dial svg{width:100%;height:100%;}
+  #dial-hand{transform-origin:28px 28px; transition:transform 0.08s linear;}
+  
+
+  /* ---------- Nav ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,10,11,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px;
+    max-width:1240px; margin:0 auto;
+  }
+  .logo{
+    font-family:var(--display);
+    font-size:26px;
+    letter-spacing:2px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red-bright);}
+  .navlinks{display:flex; gap:36px; font-size:14px; font-weight:600; letter-spacing:0.5px;}
+  .navlinks a{color:var(--dim); transition:color 0.2s;}
+  .navlinks a:hover{color:var(--text);}
+  .subscribe-btn{
+    background:var(--red); color:#fff; font-weight:700; font-size:13px;
+    letter-spacing:0.5px; padding:11px 22px; border-radius:3px;
+    display:flex; align-items:center; gap:8px; border:1px solid var(--red);
+    transition:all 0.2s;
+  }
+  .subscribe-btn:hover{background:transparent; color:var(--red-bright); border-color:var(--red-bright);}
+  .navlinks{transition:opacity 0.2s;}
+  .burger{display:none;}
+
+  @media (max-width:860px){
+    .navlinks{display:none;}
+    .burger{display:block; background:none; border:none; color:var(--text); font-size:22px;}
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:170px 0 100px;
+    position:relative;
+    display:grid; grid-template-columns:1.1fr 0.9fr; align-items:center; gap:40px;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; top:-10%; right:-10%; width:600px; height:600px;
+    background:radial-gradient(circle, rgba(232,40,63,0.16), transparent 65%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:3px; color:var(--red-bright);
+    text-transform:uppercase; display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--red-bright);}
+  h1{
+    font-family:var(--display);
+    font-size:clamp(52px, 7vw, 92px);
+    line-height:0.94;
+    letter-spacing:1px;
+    margin-bottom:26px;
+  }
+  h1 .accent{color:var(--red);}
+  .hero p{
+    color:var(--dim); font-size:17px; line-height:1.7; max-width:460px; margin-bottom:36px;
+  }
+  .cta-row{display:flex; gap:16px; flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--red); color:#fff; font-weight:700; padding:16px 30px;
+    border-radius:3px; font-size:14px; letter-spacing:0.5px;
+    box-shadow:0 8px 30px rgba(232,40,63,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 34px rgba(232,40,63,0.5);}
+  .btn-ghost{
+    border:1px solid var(--line); color:var(--text); padding:16px 30px;
+    border-radius:3px; font-size:14px; font-weight:700; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:10px;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover{border-color:var(--dim); background:var(--surface);}
+
+  /* Hero watch graphic */
+  .hero-visual{position:relative; display:flex; justify-content:center;}
+  .watch-hero{width:min(380px, 90%);}
+  .ring-glow{
+    position:absolute; inset:0; margin:auto; width:340px; height:340px;
+    border-radius:50%;
+    box-shadow:0 0 120px 40px rgba(232,40,63,0.15);
+  }
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr; padding-top:150px;}
+    .hero-visual{order:-1;}
+  }
+
+  /* ---------- Section shell ---------- */
+  section{padding:110px 0;}
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:56px; gap:24px; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); padding-bottom:28px;
+  }
+  .section-tag{font-family:var(--mono); font-size:12px; color:var(--red-bright); letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;}
+  .section-head h2{font-family:var(--display); font-size:clamp(34px,4vw,52px); letter-spacing:1px;}
+  .section-head .sub{color:var(--dim); max-width:380px; font-size:15px; line-height:1.6;}
+
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity 0.7s ease, transform 0.7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- Watches grid ---------- */
+  .watch-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
+  @media (max-width:900px){.watch-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:600px){.watch-grid{grid-template-columns:1fr;}}
+
+  .watch-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:28px 24px; transition:all 0.3s ease; position:relative; overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.28);
+  }
+  .watch-card:hover{border-color:rgba(232,40,63,0.55); transform:translateY(-8px); box-shadow:0 16px 40px rgba(232,40,63,0.16);}
+  .watch-card::before{
+    content:"";
+    position:absolute; inset:-1px;
+    border-radius:inherit;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 0.3s ease;
+    box-shadow:inset 0 0 0 1px rgba(232,40,63,0.15), 0 0 0 1px rgba(232,40,63,0.05);
+  }
+  .watch-card:hover::before{opacity:1;}
+  .watch-card .face-wrap{
+    height:240px; display:flex; align-items:center; justify-content:center; margin-bottom:22px; border-radius:14px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(232,40,63,0.04)); overflow:hidden;
+  }
+  .watch-card .face-wrap img{
+    width:100%; height:100%; object-fit:contain; display:block; transition:transform 0.35s ease;
+    transform:scale(0.92);
+  }
+  .watch-card:hover .face-wrap img{transform:scale(0.97);}
+ 
+  .watch-card h3{font-size:19px; font-weight:700; margin-bottom:8px; color:var(--text);}
+  .watch-card .desc{color:var(--dim); font-size:13.5px; margin-bottom:18px; line-height:1.6; min-height:56px;}
+  .watch-card .price-row{display:flex; align-items:center; justify-content:space-between; margin-top:10px;}
+  .price{font-family:var(--mono); font-size:18px; font-weight:600; color:var(--text);}
+  .view-link{
+    font-size:13px; font-weight:700; color:var(--red-bright); display:flex; align-items:center; gap:6px;
+    transition:transform 0.25s ease, letter-spacing 0.25s ease;
+  }
+  .watch-card:hover .view-link{transform:translateX(4px); letter-spacing:0.3px;}
+  .view-link:hover{text-decoration:underline;}
+
+  .shop-cta{display:flex; justify-content:center; margin-top:52px;}
+
+  /* ---------- Video section ---------- */
+  .yt-section{background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .video-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:22px;}
+  @media (max-width:900px){.video-grid{grid-template-columns:1fr;}}
+  .video-card{
+    background:var(--surface-2); border-radius:8px; overflow:hidden; border:1px solid var(--line);
+    transition:transform 0.25s, border-color 0.25s;
+  }
+  .video-card:hover{transform:translateY(-4px); border-color:rgba(232,40,63,0.4);}
+  .thumb{
+    aspect-ratio:16/9; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(232,40,63,0.35), transparent 55%),
+      linear-gradient(135deg,#1c1c1f,#0d0d0e);
+  }
+  .video-card.featured .thumb{aspect-ratio:16/10;}
+  .play-btn{
+    width:58px; height:58px; border-radius:50%;
+    background:rgba(232,40,63,0.9); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 8px rgba(232,40,63,0.14);
+    transition:transform 0.2s;
+  }
+  .video-card:hover .play-btn{transform:scale(1.1);}
+  .play-btn::after{
+    content:""; width:0; height:0; margin-left:4px;
+    border-top:10px solid transparent; border-bottom:10px solid transparent;
+    border-left:16px solid #fff;
+  }
+  .duration{
+    position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.75);
+    font-family:var(--mono); font-size:11px; padding:3px 7px; border-radius:3px;
+  }
+  .video-info{padding:18px 20px;}
+  .video-info h4{font-size:15.5px; font-weight:700; margin-bottom:8px; line-height:1.4;}
+  .video-meta{display:flex; gap:10px; color:var(--dim-2); font-size:12.5px; font-family:var(--mono);}
+
+  .yt-cta{
+    margin-top:48px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:20px;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:30px 34px;
+  }
+  .yt-cta-text h3{font-family:var(--display); font-size:26px; letter-spacing:0.5px; margin-bottom:6px;}
+  .yt-cta-text p{color:var(--dim); font-size:14px;}
+
+  /* ---------- About / stats ---------- */
+  .about{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;}
+  @media (max-width:860px){.about{grid-template-columns:1fr;}}
+  .about-copy p{color:var(--dim); font-size:16px; line-height:1.8; margin-bottom:18px;}
+  .about-copy p strong{color:var(--text);}
+  .stats-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .stat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:26px;
+  }
+  .stat-num{font-family:var(--display); font-size:46px; color:var(--red-bright); line-height:1;}
+  .stat-label{font-size:12.5px; color:var(--dim); letter-spacing:0.5px; margin-top:8px; text-transform:uppercase;}
+
+  /* ---------- Newsletter / footer ---------- */
+  footer{border-top:1px solid var(--line); padding-top:80px;}
+  .newsletter{
+    text-align:center; max-width:560px; margin:0 auto 90px;
+  }
+  .newsletter .section-tag{justify-content:center; display:flex;}
+  .newsletter h2{font-family:var(--display); font-size:clamp(30px,4vw,44px); margin-bottom:14px;}
+  .newsletter p{color:var(--dim); margin-bottom:30px; font-size:15px;}
+  .form-row{display:flex; gap:10px; max-width:420px; margin:0 auto; flex-wrap:wrap; justify-content:center;}
+  .form-row input{
+    flex:1; min-width:220px; background:var(--surface); border:1px solid var(--line);
+    color:var(--text); padding:15px 18px; border-radius:3px; font-size:14px; font-family:'Inter',sans-serif;
+  }
+  .form-row input:focus{border-color:var(--red-bright);}
+  .form-row input::placeholder{color:var(--dim-2);}
+
+  .footer-bottom{
+    display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px;
+    padding-bottom:50px;
+  }
+  @media (max-width:760px){.footer-bottom{grid-template-columns:1fr 1fr;}}
+  .footer-col h5{font-size:12.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:18px;}
+  .footer-col a{display:block; color:var(--text); font-size:14.5px; margin-bottom:12px; opacity:0.85; transition:opacity 0.2s;}
+  .footer-col a:hover{opacity:1; color:var(--red-bright);}
+  .footer-brand p{color:var(--dim); font-size:14px; line-height:1.6; max-width:280px; margin-top:14px;}
+  .socials{display:flex; gap:12px; margin-top:20px;}
+  .social-ic{
+    width:38px; height:38px; border:1px solid var(--line); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    transition:border-color 0.2s, color 0.2s;
+  }
+  .social-ic:hover{border-color:var(--red-bright); color:var(--red-bright);}
+  .legal{
+    border-top:1px solid var(--line); padding:26px 0; display:flex; justify-content:space-between;
+    flex-wrap:wrap; gap:12px; font-size:12.5px; color:var(--dim-2);
+  }
+</style>
+</head>
+<body>
+
+<!-- Signature scroll dial -->
+<div id="dial" aria-hidden="true">
+  <svg viewBox="0 0 56 56">
+    <circle cx="28" cy="28" r="26" fill="none" stroke="#2a2a2d" stroke-width="2"/>
+    <circle cx="28" cy="28" r="26" fill="none" stroke="#e8283f" stroke-width="2"
+      stroke-dasharray="163.4" stroke-dashoffset="163.4" id="dial-progress" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+    <line id="dial-hand" x1="28" y1="28" x2="28" y2="12" stroke="#f5f3ef" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="28" cy="28" r="2.4" fill="#e8283f"/>
+  </svg>
+</div>
+
+<header>
+  <nav>
+    <div class="logo"><span class="dot"></span>TRS VISION</div>
+    <div class="navlinks">
+      <a href="#watches">Watches</a>
+      <a href="#videos">Videos</a>
+      <a href="#about">About</a>
+      <a href="#join">Contact</a>
+    </div>
+    <a href="#join" class="subscribe-btn">▶ Subscribe</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow">New drop · Chapter 04</div>
+      <h1>TIME,<br>UNCUT<span class="accent">.</span></h1>
+      <p>Watches built for people who watch closely. Every piece I sell is the same one strapped to my wrist on camera — no filters, no stock photos, just the timepiece.</p>
+      <div class="cta-row">
+        <a href="#watches" class="btn-primary">Shop the collection</a>
+        <a href="#videos" class="btn-ghost">▶ Watch the latest drop</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="ring-glow"></div>
+      <svg class="watch-hero" viewBox="0 0 400 400">
+        <circle cx="200" cy="200" r="150" fill="#131315" stroke="#2a2a2d" stroke-width="10"/>
+        <circle cx="200" cy="200" r="150" fill="none" stroke="#e8283f" stroke-width="3" stroke-dasharray="6 10"/>
+        <circle cx="200" cy="200" r="118" fill="#0d0d0e" stroke="#232326" stroke-width="1.5"/>
+        <g stroke="#5f5f64" stroke-width="2">
+          <line x1="200" y1="90" x2="200" y2="104"/>
+          <line x1="200" y1="296" x2="200" y2="310"/>
+          <line x1="90" y1="200" x2="104" y2="200"/>
+          <line x1="296" y1="200" x2="310" y2="200"/>
+        </g>
+        <text x="200" y="150" text-anchor="middle" fill="#8f8f94" font-family="JetBrains Mono" font-size="12" letter-spacing="3">TRS</text>
+        <g id="hour-hand" class="hand-group" transform="translate(200 200)">
+  <line x1="0" y1="0" x2="0" y2="-52"
+        stroke="#f5f3ef" stroke-width="4" stroke-linecap="round"/>
+</g>
+
+<g id="minute-hand" class="hand-group" transform="translate(200 200)">
+  <line x1="0" y1="0" x2="0" y2="-72"
+        stroke="#f5f3ef" stroke-width="3" stroke-linecap="round"/>
+</g>
+
+<g id="second-hand" class="hand-group" transform="translate(200 200)">
+  <line x1="0" y1="0" x2="0" y2="-78"
+        stroke="#e8283f" stroke-width="2" stroke-linecap="round"/>
+</g>
+        <circle cx="200" cy="200" r="6" fill="#e8283f"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- WATCHES -->
+  <section id="watches">
+    <div class="section-head reveal">
+      <div>
+        <div class="section-tag">The collection</div>
+        <h2>FEATURED WATCHES</h2>
+      </div>
+      <div class="sub">CREATED FOR PRECISION</div>
+    </div>
+
+    <div class="watch-grid">
+      <div class="watch-card reveal">
+    
+        <div class="face-wrap">
+          <img src="./blue-watch.png.png" alt="TRS Vision Blue watch" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600/0a0a0b/e8283f?text=Blue+Watch';">
+        </div>
+        <h3>TRS Vision Blue</h3>
+        <p class="desc">Premium blue dial with black metal case and genuine leather strap. Perfect for everyday luxury.</p>
+        <div class="price-row">
+          <span class="price">$10.99</span>
+          <a href="#" class="view-link">View →</a>
+        </div>
+      </div>
+
+      <div class="watch-card reveal">
+      
+        <div class="face-wrap">
+          <img src="./black-watch.png.png" alt="TRS Vision Black watch" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600/0a0a0b/ffffff?text=Black+Watch';">
+        </div>
+        <h3>TRS Vision Black</h3>
+        <p class="desc">Minimal all-black design with premium craftsmanship. Modern, elegant and timeless.</p>
+        <div class="price-row">
+          <span class="price">$10.99</span>
+          <a href="#" class="view-link">View →</a>
+        </div>
+      </div>
+
+      <div class="watch-card reveal">
+      
+        <div class="face-wrap">
+          <img src="./red-watch.png.png" alt="TRS Vision Red watch" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600/0a0a0b/e8283f?text=Red+Watch';">
+        </div>
+        <h3>TRS Vision Red</h3>
+        <p class="desc">Bold red dial with black case. Designed to stand out while keeping a premium appearance.</p>
+        <div class="price-row">
+          <span class="price">$10.99</span>
+          <a href="#" class="view-link">View →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-cta reveal">
+      <a href="#" class="btn-ghost">See full catalog →</a>
+    </div>
+  </section>
+
+  <!-- VIDEOS -->
+  <section id="videos" class="yt-section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-tag">On the channel</div>
+          <h2>Latest uploads</h2>
+        </div>
+        <div class="sub">Driven by ambition, powered by creativity, built for gamers.</div>
+      </div>
+
+      <div class="video-grid">
+        <div class="video-card featured reveal">
+          <div class="thumb">
+            <div class="play-btn"></div>
+            <span class="duration">14:22</span>
+          </div>
+          <div class="video-info">
+            <h4>I bought the watch my subscribers designed</h4>
+            <div class="video-meta"><span>212K views</span><span>·</span><span>2 days ago</span></div>
+          </div>
+        </div>
+        <div class="video-card reveal">
+          <div class="thumb">
+            <div class="play-btn"></div>
+            <span class="duration">08:47</span>
+          </div>
+          <div class="video-info">
+            <h4>Unboxing the Vision Chrono (limited run)</h4>
+            <div class="video-meta"><span>96K views</span><span>·</span><span>1 week ago</span></div>
+          </div>
+        </div>
+        <div class="video-card reveal">
+          <div class="thumb">
+            <div class="play-btn"></div>
+            <span class="duration">11:03</span>
+          </div>
+          <div class="video-info">
+            <h4>Wearing 1 watch for 30 days straight</h4>
+            <div class="video-meta"><span>340K views</span><span>·</span><span>3 weeks ago</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="yt-cta reveal">
+        <div class="yt-cta-text">
+          <h3>Never miss a drop.</h3>
+          <p>New review or restock, every Thursday. Subscribe so you don't find out late.</p>
+        </div>
+        <a href="#" class="btn-primary">▶ Subscribe on YouTube</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="about">
+    <div class="about-copy reveal">
+      <div class="section-tag">Who's behind this</div>
+      <h2 id="channel-name" style="font-family:var(--display); font-size:38px; margin-bottom:22px; letter-spacing:0.5px;">Channel Name</h2>
+      <div style="margin:0 0 18px; display:grid; gap:14px;">
+        <img id="channel-banner" alt="Channel banner" style="width:100%; height:180px; object-fit:cover; border:1px solid var(--line); border-radius:8px; background:var(--surface);" />
+        <img id="channel-avatar" alt="Channel avatar" style="width:84px; height:84px; object-fit:cover; border:1px solid var(--line); border-radius:50%; background:var(--surface);" />
+      </div>
+      <p id="channel-description">Loading channel data...</p>
+      <a id="channel-link" href="#join" class="btn-ghost">Explore Our Journey →</a>
+    </div>
+    <div class="stats-grid reveal">
+      <div class="stat-card"><div class="stat-num" data-value="0">0</div><div class="stat-label">SUBSCRIBERS</div></div>
+      <div class="stat-card"><div class="stat-num" data-value="0">0</div><div class="stat-label">VIDEOS CREATED</div></div>
+      <div class="stat-card"><div class="stat-num" data-value="0">0</div><div class="stat-label">TOTAL VIEWS</div></div>
+      <div class="stat-card"><div class="stat-num" data-value="0">0</div><div class="stat-label">CHANNEL SINCE</div></div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER + FOOTER -->
+  <footer id="join">
+    <div class="newsletter reveal">
+      <div class="section-tag">Stay in the loop</div>
+      <h2>Get first access to every drop.</h2>
+      <p>Restocks sell out fast. Join the list and get notified before they hit the site.</p>
+      <form class="form-row" onsubmit="return false;">
+        <input type="email" placeholder="your@email.com" required aria-label="Email address">
+        <button class="btn-primary" type="submit">Notify me</button>
+      </form>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-col footer-brand">
+        <div class="logo"><span class="dot"></span>TRS VISION</div>
+        <p>Watches worn on camera before they're ever sold. Based on the channel, built for the people who watch it.</p>
+        <div class="socials">
+          <a href="#" class="social-ic" aria-label="YouTube">▶</a>
+          <a href="#" class="social-ic" aria-label="Instagram">◎</a>
+          <a href="#" class="social-ic" aria-label="TikTok">♪</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a href="#watches">All watches</a>
+        <a href="#watches">Limited runs</a>
+        <a href="#">Track order</a>
+      </div>
+      <div class="footer-col">
+        <h5>Channel</h5>
+        <a href="#videos">Latest videos</a>
+        <a href="#">Reviews</a>
+        <a href="#">Behind the scenes</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#">Shipping & returns</a>
+        <a href="#">Warranty</a>
+        <a href="#">Contact us</a>
+      </div>
+    </div>
+
+    <div class="legal">
+      <span>© 2026 TRS VISION. All rights reserved.</span>
+      <span>Built for people who watch closely.</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  const API_KEY = "AIzaSyBy9kfcl53wBQkEdIDihonM6v6H26dgOW8";
+  const CHANNEL_ID = "UCAlqxUYEjTkuwlcn-eGJYBg";
+
+  // YOUTUBE API START
+  const YOUTUBE_SUBSCRIBE_URL = `https://www.youtube.com/channel/${CHANNEL_ID}?sub_confirmation=1`;
+
+  function formatCompactNumber(value) {
+    if (value >= 1000000) {
+      const rounded = value / 1000000;
+      return `${Number.isInteger(rounded) ? rounded : rounded.toFixed(1).replace(/\.0$/, '')}M+`;
+    }
+    if (value >= 1000) {
+      const rounded = value / 1000;
+      return `${Number.isInteger(rounded) ? rounded : rounded.toFixed(1).replace(/\.0$/, '')}K+`;
+    }
+    return `${value}+`;
+  }
+
+  function formatDuration(isoDuration) {
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return '0:00';
+    const hours = parseInt(match[1] || '0', 10);
+    const minutes = parseInt(match[2] || '0', 10);
+    const seconds = parseInt(match[3] || '0', 10);
+    if (hours) {
+      return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  function formatUploadDate(value) {
+    return new Date(value).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  function animateNumber(element, targetValue, formatter = (value) => value, duration = 900) {
+    const startValue = Number(element.dataset.value || 0);
+    const startTime = performance.now();
+
+    function step(currentTime) {
+      const progress = Math.min(1, (currentTime - startTime) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentValue = startValue + (targetValue - startValue) * eased;
+      element.textContent = formatter(Math.round(currentValue));
+      element.dataset.value = currentValue;
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        element.textContent = formatter(targetValue);
+        element.dataset.value = targetValue;
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  function setFallbackState() {
+    const channelName = document.getElementById('channel-name');
+    if (channelName) channelName.textContent = 'Unable to load channel data';
+
+    const channelDescription = document.getElementById('channel-description');
+    if (channelDescription) channelDescription.textContent = 'Unable to load channel data';
+
+    const channelBanner = document.getElementById('channel-banner');
+    if (channelBanner) {
+      channelBanner.removeAttribute('src');
+      channelBanner.alt = 'Unable to load channel data';
+    }
+
+    const channelAvatar = document.getElementById('channel-avatar');
+    if (channelAvatar) {
+      channelAvatar.removeAttribute('src');
+      channelAvatar.alt = 'Unable to load channel data';
+    }
+
+    document.querySelectorAll('.stats-grid .stat-card').forEach((card) => {
+      const numberEl = card.querySelector('.stat-num');
+      if (numberEl) {
+        numberEl.textContent = 'Unable to load channel data';
+        numberEl.dataset.value = '0';
+      }
+    });
+
+    const videoGrid = document.querySelector('.video-grid');
+    if (videoGrid) {
+      videoGrid.innerHTML = '<div class="video-card reveal"><div class="video-info"><h4>Unable to load channel data</h4><div class="video-meta"><span>Channel data unavailable</span></div></div></div>';
+    }
+  }
+
+  async function loadYouTubeChannelData() {
+    const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings,statistics,contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`;
+    const channelResponse = await fetch(channelUrl);
+    if (!channelResponse.ok) throw new Error('Channel request failed');
+
+    const channelData = await channelResponse.json();
+    const channel = channelData.items && channelData.items[0];
+    if (!channel) throw new Error('No channel found');
+
+    const channelName = document.getElementById('channel-name');
+    const channelDescription = document.getElementById('channel-description');
+    const channelBanner = document.getElementById('channel-banner');
+    const channelAvatar = document.getElementById('channel-avatar');
+    const channelLink = document.getElementById('channel-link');
+
+    if (channelName) channelName.textContent = channel.snippet?.title || 'Channel';
+    if (channelDescription) channelDescription.textContent = channel.snippet?.description || 'No description available.';
+    if (channelBanner) {
+  channelBanner.src =
+    channel.brandingSettings?.image?.bannerExternalUrl ||
+    channel.snippet?.thumbnails?.high?.url ||
+    '';
+
+  channelBanner.alt =
+    `${channel.snippet?.title || 'Channel'} banner`;
+}
+
+if (channelAvatar) {
+  channelAvatar.src =
+    channel.snippet?.thumbnails?.high?.url || '';
+
+  channelAvatar.alt =
+    `${channel.snippet?.title || 'Channel'} profile`;
+}
+
+if (channelLink) {
+  channelLink.href =
+    `https://www.youtube.com/channel/${CHANNEL_ID}`;
+
+  channelLink.target = '_blank';
+  channelLink.rel = 'noopener noreferrer';
+}
+
+    const statCards = document.querySelectorAll('.stats-grid .stat-card');
+    if (statCards[0]) {
+      const numberEl = statCards[0].querySelector('.stat-num');
+      if (numberEl) animateNumber(numberEl, Number(channel.statistics?.subscriberCount || 0), formatCompactNumber);
+    }
+    if (statCards[1]) {
+      const numberEl = statCards[1].querySelector('.stat-num');
+      if (numberEl) animateNumber(numberEl, Number(channel.statistics?.videoCount || 0), formatCompactNumber);
+    }
+    if (statCards[2]) {
+      const numberEl = statCards[2].querySelector('.stat-num');
+      if (numberEl) animateNumber(numberEl, Number(channel.statistics?.viewCount || 0), formatCompactNumber);
+    }
+    if (statCards[3]) {
+      const numberEl = statCards[3].querySelector('.stat-num');
+      if (numberEl) {
+        const publishedAt = channel.snippet?.publishedAt || '';
+        numberEl.textContent = publishedAt ? formatUploadDate(publishedAt) : 'Unknown';
+        numberEl.dataset.value = '0';
+      }
+    }
+
+    const uploadsPlaylistId = channel.contentDetails?.relatedPlaylists?.uploads;
+    if (!uploadsPlaylistId) throw new Error('Uploads playlist not found');
+
+    const uploadsUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=3&key=${API_KEY}`;
+    const uploadsResponse = await fetch(uploadsUrl);
+    if (!uploadsResponse.ok) throw new Error('Uploads request failed');
+
+    const uploadsData = await uploadsResponse.json();
+    const videoIds = (uploadsData.items || []).map((item) => item.contentDetails?.videoId).filter(Boolean);
+    if (!videoIds.length) throw new Error('No videos found');
+
+    const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoIds.join(',')}&key=${API_KEY}`;
+    const videosResponse = await fetch(videosUrl);
+    if (!videosResponse.ok) throw new Error('Videos request failed');
+
+    const videosData = await videosResponse.json();
+    const videos = (videosData.items || []).map((item) => ({
+      id: item.id,
+      title: item.snippet?.title || 'Untitled video',
+      thumbnail: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url || '',
+      duration: item.contentDetails?.duration || 'PT0S',
+      views: Number(item.statistics?.viewCount || 0),
+      publishedAt: item.snippet?.publishedAt || ''
+    }));
+
+    const videoCards = document.querySelectorAll('.video-grid .video-card');
+    videoCards.forEach((card, index) => {
+      const video = videos[index];
+      if (!video) {
+        card.style.display = 'none';
+        return;
+      }
+
+      const thumb = card.querySelector('.thumb');
+      const info = card.querySelector('.video-info');
+      if (thumb) {
+        thumb.innerHTML = `
+          <div class="play-btn"></div>
+          <span class="duration">${formatDuration(video.duration)}</span>
+        `;
+        thumb.style.background = `linear-gradient(135deg, rgba(28,28,31,0.95), rgba(13,13,14,0.95)), url('${video.thumbnail}') center/cover no-repeat`;
+      }
+      if (info) {
+        info.innerHTML = `
+          <h4>${video.title}</h4>
+          <div class="video-meta"><span>${formatCompactNumber(video.views)} views</span><span>·</span><span>${formatUploadDate(video.publishedAt)}</span></div>
+        `;
+      }
+
+      card.style.cursor = 'pointer';
+      card.onclick = () => {
+        window.open(`https://www.youtube.com/watch?v=${video.id}`, '_blank', 'noopener,noreferrer');
+      };
+    });
+
+    const subscribeLinks = document.querySelectorAll('a.subscribe-btn, .yt-cta .btn-primary');
+    subscribeLinks.forEach((link) => {
+      link.href = YOUTUBE_SUBSCRIBE_URL;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    });
+  }
+
+  loadYouTubeChannelData().catch(setFallbackState);
+  setInterval(loadYouTubeChannelData, 5 * 60 * 1000).unref?.();
+  // YOUTUBE API END
+
+  // Scroll-driven watch dial (signature element)
+  const hand = document.getElementById('dial-hand');
+  const progress = document.getElementById('dial-progress');
+  const CIRC = 163.4;
+  function onScroll(){
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+    const angle = scrolled * 360;
+    hand.style.transform = `rotate(${angle}deg)`;
+    progress.style.strokeDashoffset = CIRC - (scrolled * CIRC);
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Real-time hero watch hands
+  const hourHand = document.getElementById('hour-hand');
+  const minuteHand = document.getElementById('minute-hand');
+  const secondHand = document.getElementById('second-hand');
+  const watchSvg = document.querySelector('.watch-hero');
+  const viewBox = watchSvg.viewBox.baseVal || {x:0, y:0, width:400, height:400};
+  const centerX = viewBox.x + viewBox.width / 2;
+  const centerY = viewBox.y + viewBox.height / 2;
+
+  function updateHeroWatch(){
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const milliseconds = now.getMilliseconds();
+
+    const hourAngle = ((hours % 12) * 30) + (minutes * 0.5) + (seconds / 120);
+    const minuteAngle = (minutes * 6) + (seconds * 0.1);
+    const secondAngle = (seconds * 6) + (milliseconds * 0.006);
+
+    hourHand.setAttribute('transform', `translate(200 200) rotate(${hourAngle})`);
+minuteHand.setAttribute('transform', `translate(200 200) rotate(${minuteAngle})`);
+secondHand.setAttribute('transform', `translate(200 200) rotate(${secondAngle})`);
+
+    requestAnimationFrame(updateHeroWatch);
+  }
+  requestAnimationFrame(updateHeroWatch);
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
